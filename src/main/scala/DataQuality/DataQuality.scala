@@ -1,19 +1,30 @@
 package DataQuality
 
 import scala.annotation.tailrec
+import scala.util.{Failure, Success, Try}
 
 object DataQuality {
   @tailrec
-  def getValue(string: String, checks: List[String => Either[QualityError, String]]): Either[QualityError, String] = {
-    checks match {
-      case Nil => Right(string)
-      case fun :: _ => {
-        val newString = checks.head(string)
-        newString match {
-          case Right(value) => getValue(value, checks.tail)
-          case Left(value) => Left(value)
+  def getValue[T](value: Either[QualityError, T],
+                  checks: List[T => Either[QualityError, T]])
+                  : Either[QualityError, T] = {
+//    checks match {
+//      case Nil => Right(value)
+//      case fun :: _ => {
+//        val newValue = checks.head(value)
+//        newValue match {
+//          case Right(value) => getValue(value, checks.tail)
+//          case Left(value) => Left(value)
+//        }
+//      }
+//    }
+    value match {
+      case Left(exception) => Left(exception)
+      case Right(value) =>
+        checks match {
+          case Nil => Right(value)
+          case x :: xs => getValue(x(value), xs)
         }
-      }
     }
   }
 }

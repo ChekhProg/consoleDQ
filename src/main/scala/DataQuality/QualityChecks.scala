@@ -1,30 +1,29 @@
 package DataQuality
 
-import scala.util.control.Exception.allCatch
+import scala.util.{Failure, Success, Try}
 
-class QualityChecks
 object QualityChecks {
-  def isLetters(string: String): Either[QualityError, String] = {
+  val isLetters: String => Either[QualityError, String] = (string: String) => {
     if (string.forall(_.isLetter))
       Right(string)
     else
       Left(QualityError("Not all is letter symbols"))
   }
-  def startsWithCapital(string: String): Either[QualityError, String] = {
+  val startsWithCapital: String => Either[QualityError, String] = (string: String) => {
     if (string.head.isUpper)
       Right(string)
     else
       Left(QualityError("Not starts with capital"))
   }
-  def isInt(string: String): Either[QualityError, String] = {
-    allCatch.opt(string.toInt) match {
-      case Some(value) => Right(string)
-      case None => Left(QualityError("Can't cast to int, incorrect symbols"))
+  val castToInt: String => Either[QualityError, Int] = (string: String) => {
+    Try(string.toInt) match {
+      case Success(value) => Right(value)
+      case Failure(exception) => Left(QualityError("Can't cast to Int"))
     }
   }
-  def isPositiveInt(string: String): Either[QualityError, String] = {
-    if (string.toInt >= 0)
-      Right(string)
+  val isPositiveInt: Int => Either[QualityError, Int] = (int: Int) => {
+    if (int >= 0)
+      Right(int)
     else
       Left(QualityError("Can't be a negative number"))
   }
